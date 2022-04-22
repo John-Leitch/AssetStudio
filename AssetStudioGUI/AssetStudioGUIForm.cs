@@ -18,6 +18,8 @@ using System.Timers;
 using System.Windows.Forms;
 using static AssetStudioGUI.Studio;
 using Font = AssetStudio.Font;
+using AphidUI;
+using Components.Aphid.UI.Colors;
 #if NET472
 using Vector3 = OpenTK.Vector3;
 using Vector4 = OpenTK.Vector4;
@@ -109,7 +111,11 @@ namespace AssetStudioGUI
             Logger.Default = logger;
             Progress.Default = new Progress<int>(SetProgressBarValue);
             Studio.StatusStripUpdate = StatusStripUpdate;
+            Load += AssetStudioGUIForm_Load;
         }
+
+        private async void AssetStudioGUIForm_Load(object sender, EventArgs e) => await LoadAssetFile(new[] {
+            @"F:\steam\steamapps\common\Stranded Deep\Stranded_Deep_Data\resources.assets" });
 
         private void AssetStudioGUIForm_DragEnter(object sender, DragEventArgs e)
         {
@@ -143,12 +149,22 @@ namespace AssetStudioGUI
             openFileDialog1.InitialDirectory = openDirectoryBackup;
             if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
             {
-                ResetForm();
-                openDirectoryBackup = Path.GetDirectoryName(openFileDialog1.FileNames[0]);
-                assetsManager.SpecifyUnityVersion = specifyUnityVersion.Text;
-                await Task.Run(() => assetsManager.LoadFiles(openFileDialog1.FileNames));
-                BuildAssetStructures();
+                await LoadAssetFile(openFileDialog1.FileNames);
+                //ResetForm();
+                //openDirectoryBackup = Path.GetDirectoryName(openFileDialog1.FileNames[0]);
+                //assetsManager.SpecifyUnityVersion = specifyUnityVersion.Text;
+                //await Task.Run(() => assetsManager.LoadFiles(openFileDialog1.FileNames));
+                //BuildAssetStructures();
             }
+        }
+
+        private async Task LoadAssetFile(string[] filenames)
+        {
+            ResetForm();
+            openDirectoryBackup = Path.GetDirectoryName(filenames[0]);
+            assetsManager.SpecifyUnityVersion = specifyUnityVersion.Text;
+            await Task.Run(() => assetsManager.LoadFiles(filenames));
+            BuildAssetStructures();
         }
 
         private async void loadFolder_Click(object sender, EventArgs e)
@@ -640,6 +656,7 @@ namespace AssetStudioGUI
             assetInfoLabel.Visible = false;
             assetInfoLabel.Text = null;
             textPreviewBox.Visible = false;
+            
             fontPreviewBox.Visible = false;
             FMODpanel.Visible = false;
             glControl1.Visible = false;
@@ -1185,8 +1202,11 @@ namespace AssetStudioGUI
                 previewPanel.BackgroundImageLayout = ImageLayout.Center;
         }
 
+        
+
         private void PreviewText(string text)
         {
+            
             textPreviewBox.Text = text;
             textPreviewBox.Visible = true;
         }
@@ -2047,6 +2067,34 @@ namespace AssetStudioGUI
         private void toolStripMenuItem15_Click(object sender, EventArgs e)
         {
             logger.ShowErrorMessage = toolStripMenuItem15.Checked;
+        }
+
+        private readonly Lazy<CodeViewer> _wpfCodeViewer = new Lazy<CodeViewer>(() =>
+            new CodeViewer { Theme = new DefaultAphidLightColorTheme() });
+
+        private void textPreviewBox_VisibleChanged(object sender, EventArgs e)
+        {
+            if (elementHost.Visible = textPreviewBox.Visible)
+            {
+                if (elementHost.Child == null)
+                {
+                    //elementHost.Child = new System.Windows.Controls.ScrollViewer()
+                    //{
+                    //    HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
+                    //    VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Visible,
+                    //    Content = _wpfCodeViewer.Value
+                    //};
+
+                    _wpfCodeViewer.Value.HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto;
+                    _wpfCodeViewer.Value.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Visible;
+                    elementHost.Child = _wpfCodeViewer.Value;
+                }
+            }
+        }
+
+        private void textPreviewBox_TextChanged(object sender, EventArgs e)
+        {
+            _wpfCodeViewer.Value.Code = textPreviewBox.Text;
         }
 
         private void glControl1_MouseWheel(object sender, MouseEventArgs e)

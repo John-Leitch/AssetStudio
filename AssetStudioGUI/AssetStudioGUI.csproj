@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFrameworks>net472;net5.0-windows;net6.0-windows</TargetFrameworks>
+		<TargetFrameworks>net6.0-windows</TargetFrameworks>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>Resources\as.ico</ApplicationIcon>
 		<Version>0.16.0.0</Version>
@@ -10,11 +10,15 @@
 		<FileVersion>0.16.0.0</FileVersion>
 		<Copyright>Copyright © Perfare 2018-2022</Copyright>
 		<DebugType>embedded</DebugType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\AssetStudioUtility\AssetStudioUtility.csproj" />
 		<ProjectReference Include="..\AssetStudio\AssetStudio.csproj" />
+		<ProjectReference Include="F:\source\aphid\AphidUI\AphidUI.csproj" />
+		<ProjectReference Include="F:\source\aphid\Components.Aphid\Components.Aphid.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -67,6 +71,15 @@
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
+
+	<!--<ItemGroup>
+	  <Reference Include="PresentationCore" />
+	  <Reference Include="PresentationFramework" />
+	  <Reference Include="System.Xaml" />
+	  <Reference Include="UIAutomationProvider" />
+	  <Reference Include="WindowsBase" />
+	  <Reference Include="WindowsFormsIntegration" />
+	</ItemGroup>-->
 
 	<Target Name="CopyExtraFiles" AfterTargets="AfterBuild">
 		<Copy SourceFiles="$(SolutionDir)AssetStudioFBXNative\bin\Win32\$(Configuration)\AssetStudioFBXNative.dll" DestinationFolder="$(TargetDir)x86" ContinueOnError="true" />
